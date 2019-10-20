@@ -1,0 +1,60 @@
+.escenario {
+    border: 1px solid black;
+    width: 816px;
+    margin: 0 auto;
+    height: 618px;
+    background-image: url(../images/fondo.jpg);
+    background-position: 0px -150px;
+    transition: 0.2s;
+    position: relative;
+    overflow: hidden; 
+}
+ 
+#runner {
+    position: absolute;
+    bottom: 30px;
+    left: 100px;
+    transform: rotateY(0deg);
+}
+#mario {
+    position: relative;
+    display: inline-block;
+    transition: 0.2s;
+    z-index: 50;
+    transition: 0.2s;
+}
+
+.malo {
+    height: 80px;
+    width: 80px;
+    background-image: url(..//images/goomba.gif);
+    background-size: cover;
+    position: absolute;
+    bottom: 30px;
+    right: 1000px;
+    transition: 0.2s;
+}
+.tubo {
+    height: 170px;
+    width: 170px;
+    background-image: url(..//images/tubo.png);
+    background-size: cover;
+    position: absolute;
+    bottom: 30px;
+    left: 3800px;
+    transition: 0.2s;
+}
+
+.disparo {
+    height: 5px;
+    width: 5px;
+    background-color: rgb(54, 54, 54);
+    position: absolute;
+    transition: 0.2s;
+}
+#gameover {
+    width: 469px;
+    height: 245px;
+    margin-left: 173px;
+    margin-top: 200px;
+}
