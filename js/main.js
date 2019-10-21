@@ -1,28 +1,38 @@
+// ESCENARIO
 var escenario = document.querySelector('.escenario')
 var movimientoEscenario = 0;
 
+// MARIO
 var mario = document.querySelector('#runner img');
+var marioVivo = true;
 var pasosMario = 0;
 var marioMirando = 'derecha';
 mario.style.bottom = '0px'
-var marioMuereMusica = document.getElementById('marioMuere');
-var sonidoDisparos = document.getElementById('marioDispara');
-var marioSalta = document.getElementById('marioSalta');
-var final = document.getElementById('final');
 var arrayDisparos = new Array;
 
+// GOOMBAS
 var tiempoIntervalo = 1000 + Math.random() * 3000;
 var aparicionMalo = setInterval(sacarMalo, tiempoIntervalo)
-var goombaMuere = document.getElementById('goombaMuere');
 var contadorId = 1;
 var arrayMalos = new Array;
 
+//TUBO
 var tubo = document.querySelector('.tubo');
 var movimientoTubo = 3800;
 
+// LLAMADA EVENTOS TECLADO
 document.addEventListener('keyup', pararMario)
 document.addEventListener('keydown', accionesMario)
 
+// SONIDOS
+var marioMuereMusica = document.getElementById('marioMuere');
+var sonidoDisparos = document.getElementById('marioDispara');
+var marioSalta = document.getElementById('marioSalta');
+var goombaMuere = document.getElementById('goombaMuere');
+var final = document.getElementById('final');
+
+
+// FUNCIONES Y EVENTOS
 
 function accionesMario(e) {
 
@@ -95,17 +105,21 @@ function accionesMario(e) {
 
                 if (marioMirando == 'derecha') {
                     var intervaloDisparo = setInterval(function () {
-                        if (avanceDisparo < 900) {
+                        if (avanceDisparo < 850) {
                             avanceDisparo += 40;
                             disparo.style.left = avanceDisparo + 'px';
-                            matarBicho();
-
                         }
-                        if (avanceDisparo >= 900) {
+
+                        matarBicho(avanceDisparo, intervaloDisparo);
+
+                        if (avanceDisparo >= 850) {
                             disparo.parentNode.removeChild(disparo);
                             clearInterval(intervaloDisparo) //REVISAR
                         }
+
+
                     }, 100)
+
 
                     break;
                 }
@@ -128,23 +142,20 @@ function accionesMario(e) {
                                 }*/
                 if (marioMirando == 'izquierda') {
                     var intervaloDisparo = setInterval(function () {
-                        if (avanceDisparo > -100) {
+                        if (avanceDisparo > -200) {
                             avanceDisparo -= 40;
                             disparo.style.left = avanceDisparo + 'px';
-                            matarBicho();
                         }
-                        if (avanceDisparo <= -100) {
-                            disparo.parentNode.removeChild(disparo);
-                            clearInterval(intervaloDisparo) //REVISAR
-                        }
-
                     }, 100)
+
+                    matarBicho(intervaloDisparo);
+                    if (avanceDisparo <= -100) {
+                        disparo.parentNode.removeChild(disparo);
+                        clearInterval(intervaloDisparo) //REVISAR
+                    }
 
                     break;
                 }
-
-
-
 
             /* if (marioMirando == 'izquierda' && mario.style.bottom === '150px') {
                 var intervaloDisparo = setInterval(function () {
@@ -166,6 +177,51 @@ function accionesMario(e) {
         }
     }
 }
+
+// MATAR BICHO DISPARO
+function matarBicho(pDisparo, pIntervalo) {
+
+    var intervaloCheck = setInterval(function () {
+
+        for (malo of arrayMalos) {
+
+            for (disparo of arrayDisparos) {
+
+                contador = 0;
+
+
+                var avanceTiro = disparo.style.left.replace('px', '') * 1;
+
+                var avanceMalo = malo.style.left.replace('px', '') * 1;
+
+                console.log('disparo' + avanceTiro + ' - goomba' + avanceMalo)
+                if (avanceTiro >= avanceMalo && avanceTiro <= avanceMalo + 40) {
+                    malo.style.bottom = '-300px';
+                    goombaMuere.play();
+                    borrarMalo(malo);
+                    arrayDisparos.splice(contador, 1)// REVISAR
+                    disparo.parentNode.removeChild(disparo);
+                    clearInterval(pIntervalo)
+                    break;
+                }
+                contador++
+            }
+        }
+    }, 100)
+
+    if (pDisparo >= 850) {
+        clearInterval(intervaloCheck)
+    }
+}
+
+
+function borrarMalo(pMalo) {
+    disparo.style.left = '900px';
+    pMalo.parentNode.removeChild(pMalo);
+}
+
+
+
 
 function pararMario(e) {
     switch (e.keyCode) {
@@ -192,10 +248,9 @@ function pararMario(e) {
                 var avanceMalo = goomba.style.left.replace('px', '') * 1;
 
                 if (pasosMario >= avanceMalo - 220 && pasosMario <= avanceMalo - 150) {
-                    borrado = setTimeout(borrarMaloSaltando, 200)
+                    borrarMaloSaltando(goomba);
                 }
             }
-
 
             break;
         case 37:
@@ -204,6 +259,15 @@ function pararMario(e) {
     }
 }
 
+// MATAR BICHO SALTANDO
+function borrarMaloSaltando(pGoomba) {
+    pGoomba.style.bottom = '-300px';
+    goombaMuere.play();
+    pGoomba.parentNode.removeChild(pGoomba);
+}
+
+
+// GOOMBAS
 function sacarMalo() {
     if (movimientoTubo <= 680) {
         clearInterval(aparicionMalo);
@@ -224,10 +288,7 @@ function sacarMalo() {
 
         escenario.appendChild(malo);
         var inetervaloBicho = setInterval(function () {
-            if (malo.style.bottom == '-300px') {
-                malo.parentNode.removeChild(malo);
-                clearInterval(intervaloBicho);
-            }
+
             if (avanceMalo > -200) {
                 /*   if (pasosMario >= 350 && movimientoEscenario >= -3200) {// NO FUNCIONA BIEN
                       avanceMalo -= 500;
@@ -241,6 +302,10 @@ function sacarMalo() {
                 clearInterval(inetervaloBicho)
             }
         }, 100)
+        if (malo.style.bottom == '-300px') {
+            malo.parentNode.removeChild(malo);
+            clearInterval(intervaloBicho);
+        }
     }
 }
 
@@ -259,45 +324,12 @@ function muerteMario(pAvanceMalo) {
 
         marioMuereMusica.play();
         borrado = setTimeout(borrarMario, 500)
+        marioVivo = false;
     }
 }
 function borrarMario() {
     mario.parentNode.removeChild(mario);
 }
-
-// MATAR BICHO
-function matarBicho() {
-    for (malo of arrayMalos) {
-
-        for (disparo of arrayDisparos) {
-
-            var avanceDisparo = disparo.style.left.replace('px', '') * 1;
-
-            var avanceMalo = malo.style.left.replace('px', '') * 1;
-
-            if (avanceDisparo >= avanceMalo && avanceDisparo <= avanceMalo + 40) {
-                malo.style.bottom = '-300px';
-                goombaMuere.play();
-                clearInterval(inetervaloDisparo)
-                disparo.parentNode.removeChild(disparo);
-                borrado = setTimeout(borrarMalo, 500);
-                break;
-            }
-
-        }
-    }
-}
-function borrarMalo(pMalo) {
-    disparo.style.left = '900px';
-    pMalo.parentNode.removeChild(pMalo);
-}
-function borrarMaloSaltando() {
-    goomba.style.bottom = '-300px';
-    goombaMuere.play();
-    disparo.style.left = '900px';
-    goomba.parentNode.removeChild(pMalo);
-}
-
 
 
 /* PROBLEMAS:
