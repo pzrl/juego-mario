@@ -36,184 +36,166 @@ var final = document.getElementById('final');
 
 function accionesMario(e) {
 
-    if (pasosMario >= 350 && movimientoEscenario >= -3160) {
-        pasosMario -= 500;
-        movimientoEscenario -= 500;
-        movimientoTubo -= 500;
-    }
-    else {
+    corrccionEscenario()
 
-        switch (e.keyCode) {
+    switch (e.keyCode) {
 
-            // SALTAR
+        // SALTAR
 
-            case 38:
-                mario.src = 'images/salto.gif';
-                mario.style.bottom = '150px';
-                marioSalta.play()
+        case 38:
+            mario.src = 'images/salto.gif';
+            mario.style.bottom = '150px';
+            marioSalta.play()
+            break;
+
+        //AVANZAR
+        case 39:
+            if (pasosMario <= 650) {
+                pasosMario += 30;
+                mario.src = 'images/mario.gif';
+                mario.style.left = pasosMario + 'px';
+                mario.style.transform = 'rotateY(0deg)';
+                marioMirando = "derecha";
+            }
+            if (movimientoEscenario >= -3200 && (mario.style.bottom == '0px' || mario.style.bottom == '150px')) {
+                movimientoEscenario -= 30;
+                escenario.style.backgroundPosition = movimientoEscenario + 'px -150px';
+                movimientoTubo -= 30;
+                tubo.style.left = movimientoTubo + 'px';
+            }
+            break;
+
+        //RETROCEDER
+        case 37:
+            if (pasosMario >= -110 && mario.style.bottom == '0px') {
+                pasosMario -= 60;
+                mario.style.left = pasosMario + 'px';
+                mario.src = 'images/mario.gif';
+                mario.style.transform = 'rotateY(180deg)';
+                marioMirando = "izquierda";
+            }
+            if (movimientoEscenario <= 0 && (mario.style.bottom == '0px' || mario.style.bottom == '150px')) {
+                movimientoEscenario += 10;
+                escenario.style.backgroundPosition = movimientoEscenario + 'px -150px';
+                movimientoTubo += 10;
+                tubo.style.left = movimientoTubo + 'px';
+            }
+            break;
+
+
+        // DISPARAR
+        case 32:
+
+            var disparo = document.createElement('div');
+            disparo.className = 'disparo';
+            var avanceDisparo = mario.offsetLeft + 210;
+            disparo.style.left = avanceDisparo + 'px';
+            var descensoDisparo = mario.offsetTop + 520;
+            disparo.style.top = descensoDisparo + 'px';
+            escenario.appendChild(disparo);
+            marioDispara.play();
+            disparo.id = 'disparo' + contadorId;
+            arrayDisparos.push(disparo)
+            contadorId++;
+
+            if (marioMirando == 'derecha') {
+                var intervaloDisparo = setInterval(function () {
+                    if (avanceDisparo < 850) {
+                        avanceDisparo += 40;
+                        disparo.style.left = avanceDisparo + 'px';
+                    }
+
+                    matarBicho(disparo, intervaloDisparo);
+
+                    if (avanceDisparo >= 850) {
+                        disparo.parentNode.removeChild(disparo);
+                        clearInterval(intervaloDisparo) //REVISAR
+                    }
+
+
+                }, 100)
+
+
                 break;
+            }
+            /*                 if (marioMirando == 'derecha' && mario.style.bottom == '150px') {
+                                var intervaloDisparo = setInterval(function () {
+                                    if (avanceDisparo < 800) {
+                                        avanceDisparo += 40;
+                                        descensoDisparo += 15;
+                                        disparo.style.top = descensoDisparo + 'px';
+                                        disparo.style.left = avanceDisparo + 'px';
+                                    }
+                                    else {
+                                        disparo.parentNode.removeChild(disparo);
+                                        clearInterval(intervaloDisparo)//REVISAR
+                                    }
+            
+                                }, 100)
+            
+                                break; 
+                            }*/
+            if (marioMirando == 'izquierda') {
+                var intervaloDisparo = setInterval(function () {
+                    if (avanceDisparo > -200) {
+                        avanceDisparo -= 40;
+                        disparo.style.left = avanceDisparo + 'px';
+                    }
 
-            //AVANZAR
-            case 39:
-                if (pasosMario <= 650) {
-                    pasosMario += 30;
-                    mario.src = 'images/mario.gif';
-                    mario.style.left = pasosMario + 'px';
-                    mario.style.transform = 'rotateY(0deg)';
-                    marioMirando = "derecha";
-                }
-                if (movimientoEscenario >= -3200 && (mario.style.bottom == '0px' || mario.style.bottom == '150px')) {
-                    movimientoEscenario -= 30;
-                    escenario.style.backgroundPosition = movimientoEscenario + 'px -150px';
-                    movimientoTubo -= 30;
-                    tubo.style.left = movimientoTubo + 'px';
-                }
-                break;
+                    matarBicho(disparo, intervaloDisparo);
 
-            //RETROCEDER
-            case 37:
-                if (pasosMario >= -110 && mario.style.bottom == '0px') {
-                    pasosMario -= 60;
-                    mario.style.left = pasosMario + 'px';
-                    mario.src = 'images/mario.gif';
-                    mario.style.transform = 'rotateY(180deg)';
-                    marioMirando = "izquierda";
-                }
-                if (movimientoEscenario <= 0 && (mario.style.bottom == '0px' || mario.style.bottom == '150px')) {
-                    movimientoEscenario += 10;
-                    escenario.style.backgroundPosition = movimientoEscenario + 'px -150px';
-                    movimientoTubo += 10;
-                    tubo.style.left = movimientoTubo + 'px';
-                }
-                break;
-
-
-            // DISPARAR
-            case 32:
-
-                var disparo = document.createElement('div');
-                disparo.className = 'disparo';
-                var avanceDisparo = mario.offsetLeft + 210;
-                disparo.style.left = avanceDisparo + 'px';
-                var descensoDisparo = mario.offsetTop + 520;
-                disparo.style.top = descensoDisparo + 'px';
-                escenario.appendChild(disparo);
-                marioDispara.play();
-                disparo.id = 'disparo' + contadorId;
-                arrayDisparos.push(disparo)
-                contadorId++;
-
-                if (marioMirando == 'derecha') {
-                    var intervaloDisparo = setInterval(function () {
-                        if (avanceDisparo < 850) {
-                            avanceDisparo += 40;
-                            disparo.style.left = avanceDisparo + 'px';
-                        }
-
-                        matarBicho(avanceDisparo, intervaloDisparo);
-
-                        if (avanceDisparo >= 850) {
-                            disparo.parentNode.removeChild(disparo);
-                            clearInterval(intervaloDisparo) //REVISAR
-                        }
-
-
-                    }, 100)
-
-
-                    break;
-                }
-                /*                 if (marioMirando == 'derecha' && mario.style.bottom == '150px') {
-                                    var intervaloDisparo = setInterval(function () {
-                                        if (avanceDisparo < 800) {
-                                            avanceDisparo += 40;
-                                            descensoDisparo += 15;
-                                            disparo.style.top = descensoDisparo + 'px';
-                                            disparo.style.left = avanceDisparo + 'px';
-                                        }
-                                        else {
-                                            disparo.parentNode.removeChild(disparo);
-                                            clearInterval(intervaloDisparo)//REVISAR
-                                        }
-                
-                                    }, 100)
-                
-                                    break; 
-                                }*/
-                if (marioMirando == 'izquierda') {
-                    var intervaloDisparo = setInterval(function () {
-                        if (avanceDisparo > -200) {
-                            avanceDisparo -= 40;
-                            disparo.style.left = avanceDisparo + 'px';
-                        }
-                    }, 100)
-
-                    matarBicho(intervaloDisparo);
                     if (avanceDisparo <= -100) {
                         disparo.parentNode.removeChild(disparo);
                         clearInterval(intervaloDisparo) //REVISAR
                     }
 
-                    break;
-                }
-
-            /* if (marioMirando == 'izquierda' && mario.style.bottom === '150px') {
-                var intervaloDisparo = setInterval(function () {
-                    if (avanceDisparo < 800) {
-                        avanceDisparo -= 40;
-                        descensoDisparo += 15;
-                        disparo.style.top = descensoDisparo + 'px';
-                        disparo.style.left = avanceDisparo + 'px';
-                    }
-                    else {
-                        disparo.parentNode.removeChild(disparo);
-                        clearInterval(intervaloDisparo)//REVISAR
-                    }
-
                 }, 100)
 
                 break;
-            } */
-        }
+            }
+
+        /* if (marioMirando == 'izquierda' && mario.style.bottom === '150px') {
+            var intervaloDisparo = setInterval(function () {
+                if (avanceDisparo < 800) {
+                    avanceDisparo -= 40;
+                    descensoDisparo += 15;
+                    disparo.style.top = descensoDisparo + 'px';
+                    disparo.style.left = avanceDisparo + 'px';
+                }
+                else {
+                    disparo.parentNode.removeChild(disparo);
+                    clearInterval(intervaloDisparo)//REVISAR
+                }
+ 
+            }, 100)
+ 
+            break;
+        } */
     }
+
 }
 
 // MATAR BICHO DISPARO
 function matarBicho(pDisparo, pIntervalo) {
 
-    var intervaloCheck = setInterval(function () {
+    for (malo of arrayMalos) {
 
-        for (malo of arrayMalos) {
+        var avanceTiro = pDisparo.style.left.replace('px', '') * 1;
 
-            for (disparo of arrayDisparos) {
+        var avanceMalo = malo.style.left.replace('px', '') * 1;
 
-                contador = 0;
-
-
-                var avanceTiro = disparo.style.left.replace('px', '') * 1;
-
-                var avanceMalo = malo.style.left.replace('px', '') * 1;
-
-                console.log('disparo' + avanceTiro + ' - goomba' + avanceMalo)
-                if (avanceTiro >= avanceMalo && avanceTiro <= avanceMalo + 40) {
-                    malo.style.bottom = '-300px';
-                    goombaMuere.play();
-                    borrarMalo(malo);
-                    arrayDisparos.splice(contador, 1)// REVISAR
-                    disparo.parentNode.removeChild(disparo);
-                    clearInterval(pIntervalo)
-                    break;
-                }
-                contador++
-            }
+        console.log('disparo' + avanceTiro + ' - goomba' + avanceMalo)
+        if (avanceTiro >= avanceMalo && avanceTiro <= avanceMalo + 40) {
+            malo.style.bottom = '-300px';
+            goombaMuere.play();
+            borrarMalo(malo);
+            pDisparo.parentNode.removeChild(pDisparo);
+            clearInterval(pIntervalo)
+            arrayDisparos.splice(contador, 1)// REVISAR
+            break;
         }
-    }, 100)
-
-    if (pDisparo >= 850) {
-        clearInterval(intervaloCheck)
     }
 }
-
 
 function borrarMalo(pMalo) {
     disparo.style.left = '900px';
@@ -289,10 +271,9 @@ function sacarMalo() {
         escenario.appendChild(malo);
         var inetervaloBicho = setInterval(function () {
 
+            corrccionEscenario()
+
             if (avanceMalo > -200) {
-                /*   if (pasosMario >= 350 && movimientoEscenario >= -3200) {// NO FUNCIONA BIEN
-                      avanceMalo -= 500;
-                  } */
                 avanceMalo -= 5;
                 malo.style.left = avanceMalo + 'px';
                 muerteMario(avanceMalo)
@@ -302,6 +283,8 @@ function sacarMalo() {
                 clearInterval(inetervaloBicho)
             }
         }, 100)
+
+
         if (malo.style.bottom == '-300px') {
             malo.parentNode.removeChild(malo);
             clearInterval(intervaloBicho);
