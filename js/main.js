@@ -36,7 +36,7 @@ var final = document.getElementById('final');
 
 function accionesMario(e) {
 
-    corrccionEscenario()
+    corrccionEscenario() // Esto funciona bien para mario, el tubo y el escenario, pero con los malos una vez corregida su posición, retoman la posición anterior ya que su intervalo de movimiento vuelve a cambiar la posición left.
 
     switch (e.keyCode) {
 
@@ -118,7 +118,7 @@ function accionesMario(e) {
 
                 break;
             }
-            /*                 if (marioMirando == 'derecha' && mario.style.bottom == '150px') {
+            /*                 if (marioMirando == 'derecha' && mario.style.bottom == '150px') { // ESTO DEJO DE FUNCIONAR BIEN
                                 var intervaloDisparo = setInterval(function () {
                                     if (avanceDisparo < 800) {
                                         avanceDisparo += 40;
@@ -154,7 +154,7 @@ function accionesMario(e) {
                 break;
             }
 
-        /* if (marioMirando == 'izquierda' && mario.style.bottom === '150px') {
+        /* if (marioMirando == 'izquierda' && mario.style.bottom === '150px') { // ESTO DEJO DE FUNCIONAR BIEN
             var intervaloDisparo = setInterval(function () {
                 if (avanceDisparo < 800) {
                     avanceDisparo -= 40;
@@ -174,35 +174,6 @@ function accionesMario(e) {
     }
 
 }
-
-// MATAR BICHO DISPARO
-function matarBicho(pDisparo, pIntervalo) {
-
-    for (malo of arrayMalos) {
-
-        var avanceTiro = pDisparo.style.left.replace('px', '') * 1;
-
-        var avanceMalo = malo.style.left.replace('px', '') * 1;
-
-        console.log('disparo' + avanceTiro + ' - goomba' + avanceMalo)
-        if (avanceTiro >= avanceMalo && avanceTiro <= avanceMalo + 40) {
-            malo.style.bottom = '-300px';
-            goombaMuere.play();
-            borrarMalo(malo);
-            pDisparo.parentNode.removeChild(pDisparo);
-            clearInterval(pIntervalo)
-            arrayDisparos.splice(contador, 1)// REVISAR
-            break;
-        }
-    }
-}
-
-function borrarMalo(pMalo) {
-    disparo.style.left = '900px';
-    pMalo.parentNode.removeChild(pMalo);
-}
-
-
 
 
 function pararMario(e) {
@@ -241,13 +212,6 @@ function pararMario(e) {
     }
 }
 
-// MATAR BICHO SALTANDO
-function borrarMaloSaltando(pGoomba) {
-    pGoomba.style.bottom = '-300px';
-    goombaMuere.play();
-    pGoomba.parentNode.removeChild(pGoomba);
-}
-
 
 // GOOMBAS
 function sacarMalo() {
@@ -269,9 +233,12 @@ function sacarMalo() {
         var avanceMalo = 820;
 
         escenario.appendChild(malo);
-        var inetervaloBicho = setInterval(function () {
+        var inetervaloBicho = setInterval(function () { // Aquí habría que pasar la poiscion de avance malo en cada corrección de escenario, pero no sé como hacerlo. Si ponemos aqui la corrección especifica para los malos no funciona
 
-            corrccionEscenario()
+            if (malo.style.bottom == '-300px') {
+                malo.parentNode.removeChild(malo);
+                clearInterval(intervaloBicho);
+            }
 
             if (avanceMalo > -200) {
                 avanceMalo -= 5;
@@ -285,33 +252,8 @@ function sacarMalo() {
         }, 100)
 
 
-        if (malo.style.bottom == '-300px') {
-            malo.parentNode.removeChild(malo);
-            clearInterval(intervaloBicho);
-        }
+
     }
-}
-
-function muerteMario(pAvanceMalo) {
-    if (pasosMario >= pAvanceMalo - 230 && pasosMario <= pAvanceMalo - 220 && mario.style.bottom == '0px') {
-        mario.style.bottom = '-300px';
-        var gameOver = document.createElement('img');
-        gameOver.id = 'gameover'
-        gameOver.src = 'images/game-over.png';
-        var restart = document.createElement('a');
-        restart.id = 'restart';
-        restart.href = '';
-
-        escenario.appendChild(restart);
-        restart.appendChild(gameOver);
-
-        marioMuereMusica.play();
-        borrado = setTimeout(borrarMario, 500)
-        marioVivo = false;
-    }
-}
-function borrarMario() {
-    mario.parentNode.removeChild(mario);
 }
 
 
@@ -321,17 +263,14 @@ function borrarMario() {
 - quitar balas correctamente
 - si avanza mario, las balas desaparecen antes
 - la correción del escenario no acaba de funcionar con los malos
-- disparos desde altura
 - las balas no matan a la derecha del escenario
-
+- disparos desde altura
 
 */
 
 /* PENDIENTE:
 
 Que Mario caiga al saltar
-
-Que los bichos mueran al saltar sobre ellos y desaparezcan.
 
 Que el tubo no se pueda atravesar por los lados.
 
