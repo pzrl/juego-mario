@@ -9,6 +9,14 @@
     position: relative;
     overflow: hidden; 
 }
+.start {
+    font-size: 150px;
+    font-family: 'Super Mario 256', Arial, sans-serif;
+    color: orangered;
+    position: absolute;
+    left: 100px;
+    top: 200px;
+}
  
 #runner {
     position: absolute;
@@ -51,6 +59,15 @@
     background-color: rgb(54, 54, 54);
     position: absolute;
     transition: 0.2s;
+}
+
+.muertes {
+    font-size: 100px;
+    font-family: 'Super Mario 256', Arial, sans-serif;
+    color: orangered;
+    position: absolute;
+    left: 660px;
+    top: 30px;
 }
 #gameover {
     width: 469px;

@@ -1,10 +1,22 @@
+// SONIDOS
+music.play();
+setTimeout(function () {
+    var start = document.querySelector('.start');
+    start.style.display = 'none';
+}, 3000);
+var marioMuereMusica = document.getElementById('marioMuere');
+var sonidoDisparos = document.getElementById('marioDispara');
+var marioSalta = document.getElementById('marioSalta');
+var goombaMuere = document.getElementById('goombaMuere');
+var final = document.getElementById('final');
+
 // ESCENARIO
 var escenario = document.querySelector('.escenario')
 var movimientoEscenario = 0;
+var muertes = document.querySelector('.muertes');
 
 // MARIO
 var mario = document.querySelector('#runner img');
-var marioVivo = true;
 var pasosMario = 0;
 var marioMirando = 'derecha';
 mario.style.bottom = '0px'
@@ -15,6 +27,7 @@ var tiempoIntervalo = 1000 + Math.random() * 3000;
 var aparicionMalo = setInterval(sacarMalo, tiempoIntervalo)
 var contadorId = 1;
 var arrayMalos = new Array;
+var malosMuertos = 0;
 
 //TUBO
 var tubo = document.querySelector('.tubo');
@@ -23,14 +36,6 @@ var movimientoTubo = 3800;
 // LLAMADA EVENTOS TECLADO
 document.addEventListener('keyup', pararMario)
 document.addEventListener('keydown', accionesMario)
-
-// SONIDOS
-var marioMuereMusica = document.getElementById('marioMuere');
-var sonidoDisparos = document.getElementById('marioDispara');
-var marioSalta = document.getElementById('marioSalta');
-var goombaMuere = document.getElementById('goombaMuere');
-var final = document.getElementById('final');
-
 
 // FUNCIONES Y EVENTOS
 
@@ -43,49 +48,21 @@ function accionesMario(e) {
         // SALTAR
 
         case 38:
-            mario.src = 'images/salto.gif';
-            mario.style.bottom = '150px';
-            marioSalta.play()
+            saltarMario();
             break;
 
         //AVANZAR
         case 39:
-            if (pasosMario <= 650) {
-                pasosMario += 30;
-                mario.src = 'images/mario.gif';
-                mario.style.left = pasosMario + 'px';
-                mario.style.transform = 'rotateY(0deg)';
-                marioMirando = "derecha";
-            }
-            if (movimientoEscenario >= -3200 && (mario.style.bottom == '0px' || mario.style.bottom == '150px')) {
-                movimientoEscenario -= 30;
-                escenario.style.backgroundPosition = movimientoEscenario + 'px -150px';
-                movimientoTubo -= 30;
-                tubo.style.left = movimientoTubo + 'px';
-            }
+            avanzarMario();
             break;
 
         //RETROCEDER
         case 37:
-            if (pasosMario >= -110 && mario.style.bottom == '0px') {
-                pasosMario -= 60;
-                mario.style.left = pasosMario + 'px';
-                mario.src = 'images/mario.gif';
-                mario.style.transform = 'rotateY(180deg)';
-                marioMirando = "izquierda";
-            }
-            if (movimientoEscenario <= 0 && (mario.style.bottom == '0px' || mario.style.bottom == '150px')) {
-                movimientoEscenario += 10;
-                escenario.style.backgroundPosition = movimientoEscenario + 'px -150px';
-                movimientoTubo += 10;
-                tubo.style.left = movimientoTubo + 'px';
-            }
+            retrocederMario();
             break;
-
 
         // DISPARAR
         case 32:
-
             var disparo = document.createElement('div');
             disparo.className = 'disparo';
             var avanceDisparo = mario.offsetLeft + 210;
@@ -98,81 +75,81 @@ function accionesMario(e) {
             arrayDisparos.push(disparo)
             contadorId++;
 
-            if (marioMirando == 'derecha') {
+            if (marioMirando == 'derecha' && mario.style.bottom == '0px') {
                 var intervaloDisparo = setInterval(function () {
                     if (avanceDisparo < 850) {
                         avanceDisparo += 40;
+                        console.log(descensoDisparo)
                         disparo.style.left = avanceDisparo + 'px';
                     }
 
-                    matarBicho(disparo, intervaloDisparo);
+                    impactarMalo(disparo, intervaloDisparo);
 
                     if (avanceDisparo >= 850) {
                         disparo.parentNode.removeChild(disparo);
-                        clearInterval(intervaloDisparo) //REVISAR
+                        clearInterval(intervaloDisparo);
                     }
 
-
                 }, 100)
-
-
                 break;
             }
-            /*                 if (marioMirando == 'derecha' && mario.style.bottom == '150px') { // ESTO DEJO DE FUNCIONAR BIEN
-                                var intervaloDisparo = setInterval(function () {
-                                    if (avanceDisparo < 800) {
-                                        avanceDisparo += 40;
-                                        descensoDisparo += 15;
-                                        disparo.style.top = descensoDisparo + 'px';
-                                        disparo.style.left = avanceDisparo + 'px';
-                                    }
-                                    else {
-                                        disparo.parentNode.removeChild(disparo);
-                                        clearInterval(intervaloDisparo)//REVISAR
-                                    }
-            
-                                }, 100)
-            
-                                break; 
-                            }*/
-            if (marioMirando == 'izquierda') {
+            if (marioMirando == 'derecha' && mario.style.bottom != '0px') {
+                var intervaloDisparo = setInterval(function () {
+                    if (avanceDisparo < 850) {
+                        avanceDisparo += 40;
+                        descensoDisparo += 15;
+                        console.log(descensoDisparo)
+                        disparo.style.top = descensoDisparo + 'px';
+                        disparo.style.left = avanceDisparo + 'px';
+                    }
+
+                    impactarMalo(disparo, intervaloDisparo);
+
+                    if (avanceDisparo >= 850) {
+                        disparo.parentNode.removeChild(disparo);
+                        clearInterval(intervaloDisparo);
+                    }
+
+                }, 100)
+                break;
+            }
+            if (marioMirando == 'izquierda' && mario.style.bottom == '0px') {
                 var intervaloDisparo = setInterval(function () {
                     if (avanceDisparo > -200) {
                         avanceDisparo -= 40;
                         disparo.style.left = avanceDisparo + 'px';
                     }
 
-                    matarBicho(disparo, intervaloDisparo);
+                    impactarMalo(disparo, intervaloDisparo);
 
-                    if (avanceDisparo <= -100) {
+                    if (avanceDisparo <= -200) {
+                        disparo.parentNode.removeChild(disparo);
+                        clearInterval(intervaloDisparo);
+                    }
+
+                }, 100)
+                break;
+            }
+            if (marioMirando == 'izquierda' && mario.style.bottom != '0px') {
+                var intervaloDisparo = setInterval(function () {
+                    if (avanceDisparo > -200) {
+                        avanceDisparo -= 40;
+                        descensoDisparo += 15;
+                        disparo.style.top = descensoDisparo + 'px';
+                        disparo.style.left = avanceDisparo + 'px';
+                    }
+
+                    impactarMalo(disparo, intervaloDisparo);
+
+                    if (avanceDisparo <= -200) {
                         disparo.parentNode.removeChild(disparo);
                         clearInterval(intervaloDisparo) //REVISAR
                     }
 
                 }, 100)
-
                 break;
             }
-
-        /* if (marioMirando == 'izquierda' && mario.style.bottom === '150px') { // ESTO DEJO DE FUNCIONAR BIEN
-            var intervaloDisparo = setInterval(function () {
-                if (avanceDisparo < 800) {
-                    avanceDisparo -= 40;
-                    descensoDisparo += 15;
-                    disparo.style.top = descensoDisparo + 'px';
-                    disparo.style.left = avanceDisparo + 'px';
-                }
-                else {
-                    disparo.parentNode.removeChild(disparo);
-                    clearInterval(intervaloDisparo)//REVISAR
-                }
- 
-            }, 100)
- 
-            break;
-        } */
     }
-
 }
 
 
@@ -182,29 +159,7 @@ function pararMario(e) {
             mario.src = 'images/mario-parado.gif';
             break;
         case 38:
-            mario.src = 'images/mario-parado.gif';
-            mario.style.bottom = '0px';
-            if (movimientoTubo <= 600 && pasosMario >= 420 && pasosMario <= 480) {
-                final.play()
-                var winner = document.createElement('img');
-                winner.id = 'winner'
-                winner.src = 'images/winner.png';
-
-                var restart = document.createElement('a');
-                restart.id = 'restart';
-                restart.href = '';
-                escenario.appendChild(restart)
-                restart.appendChild(winner);
-            }
-
-            for (goomba of arrayMalos) {
-                var avanceMalo = goomba.style.left.replace('px', '') * 1;
-
-                if (pasosMario >= avanceMalo - 220 && pasosMario <= avanceMalo - 150) {
-                    borrarMaloSaltando(goomba);
-                }
-            }
-
+            bajarMario();
             break;
         case 37:
             mario.src = 'images/mario-parado.gif';
@@ -236,45 +191,27 @@ function sacarMalo() {
         var inetervaloBicho = setInterval(function () { // Aquí habría que pasar la poiscion de avance malo en cada corrección de escenario, pero no sé como hacerlo. Si ponemos aqui la corrección especifica para los malos no funciona
 
             if (malo.style.bottom == '-300px') {
-                malo.parentNode.removeChild(malo);
-                clearInterval(intervaloBicho);
+                avanceMalo += 100;
             }
-
-            if (avanceMalo > -200) {
-                avanceMalo -= 5;
+            if (avanceMalo > -200 && malo.style.bottom != '-300px') {
+                avanceMalo -= 6;
                 malo.style.left = avanceMalo + 'px';
                 muerteMario(avanceMalo)
             }
             else {
+                console.log(malo)
                 malo.parentNode.removeChild(malo);
                 clearInterval(inetervaloBicho)
             }
         }, 100)
-
-
-
     }
 }
 
 
 /* PROBLEMAS:
 
-- quitar malos eliminados correctamente
-- quitar balas correctamente
-- si avanza mario, las balas desaparecen antes
+- las balas al principio funcionan, pero al poco comienzan a fallar (desaparecen antes y matan a malos con los que no chocan)
 - la correción del escenario no acaba de funcionar con los malos
-- las balas no matan a la derecha del escenario
-- disparos desde altura
-
-*/
-
-/* PENDIENTE:
-
-Que Mario caiga al saltar
-
-Que el tubo no se pueda atravesar por los lados.
-
-Musica de juego
 
 */
 
